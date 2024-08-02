@@ -32,22 +32,16 @@ class Hoteis(Resource):
     
 
 class Hotel(Resource):
-#pesquisa se existe hotel, se sim ele retorna o Hotel, se não ele retorna um #404 error
-    def fing_hotel(hotel_id):
-        for hotel in hoteis:
-            if hotel['hotel_id'] == hotel_id:
-                return hotel
-        return None
 
 #pesquisa se existe hotel, se sim ele retorna o Hotel, se não ele retorna um #404 error
     def get(self, hotel_id):
-        hotel = Hotel.find_hotel(hotel_id)
-        if hotel:
-            return hotel
+        for hotel in hoteis:
+            if hotel['hotel_id'] == hotel_id:
+                return hotel
         return {'message': 'Hotel not found.'}, 404 #not found
 
 
-
+#
     def post(self, hotel_id):
         argumentos = reqparse.RequestParser()
         argumentos.add_argument('nome')
@@ -68,7 +62,7 @@ class Hotel(Resource):
         hoteis.append(novo_hotel)
         return novo_hotel, 200
 
-
+#
     def put(self, hotel_id):
         pass
 
