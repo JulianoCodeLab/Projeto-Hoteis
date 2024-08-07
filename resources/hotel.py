@@ -64,11 +64,11 @@ class Hotel(Resource):
         dados = Hotel.argumentos.parse_args()
 
         novo_hotel = { 'hotel_id': hotel_id, **dados }
-        
+
         hoteis.append(novo_hotel)
         return novo_hotel, 200
 
-    # Método PUT para atualizar um hotel existente.
+    # Método PUT para atualizar um hotel existente, ou criar um se ele não existir.
     def put(self, hotel_id):
 
         dados = Hotel.argumentos.parse_args()
