@@ -36,7 +36,7 @@ class Hoteis(Resource):
 # Classe Hotel para lidar com operações relacionadas a um único hotel.
 class Hotel(Resource):
 
-#Definindo construtor
+#Definindo construtor | atributos da classe Hotel
     argumentos = reqparse.RequestParser()
     argumentos.add_argument('nome')
     argumentos.add_argument('estrelas')
@@ -83,4 +83,6 @@ class Hotel(Resource):
 
     # Método DELETE para remover um hotel pelo ID.
     def delete(self, hotel_id):
-        pass
+        global hoteis
+        hoteis = [hotel for hotel in hoteis if hotel['hotel_id'] != hotel_id]
+        return{'message': 'Hotel deleted'}
