@@ -24,6 +24,25 @@ hoteis = [
     }
 ]
 
+#classe que representa os hoteis
+class HotelModel:
+    def __init__(self, hotel_id, nome, estrelas, diaria, cidade):
+        self.hotel_id = hotel_id
+        self.nome = nome
+        self.estrelas = estrelas
+        self.diaria = diaria
+        self.cidade = cidade
+
+def json(self):
+    return {
+        "hortel_id": self.hotel_id,
+        "nome": self.nome,
+        "estrelas": self.estrelas,
+        "diaria": self.diaria,
+        "cidade": self.cidade
+    }
+
+#-----------------------------------------------------------------------------------------
 # Classe Hoteis para lidar com a coleção de hotéis.
 class Hoteis(Resource):
 
@@ -60,24 +79,22 @@ class Hotel(Resource):
 
 # Método POST para adicionar um novo hotel. Recebe os dados do hotel via JSON e adiciona à lista de hotéis.
     def post(self, hotel_id):
-
-        dados = Hotel.argumentos.parse_args()
-
-        novo_hotel = { 'hotel_id': hotel_id, **dados }
-
+        dados = Hotel.atributos.parse_args()
+        hotel_objeto = HotelModel(hotel_id, **dados)
+        novo_hotel = hotel_objeto.json()
         hoteis.append(novo_hotel)
-        return novo_hotel, 200
+        return novo_hotel, 201
 
     # Método PUT para atualizar um hotel existente, ou criar um se ele não existir.
     def put(self, hotel_id):
-
-        dados = Hotel.argumentos.parse_args()
-        novo_hotel = { 'hotel_id': hotel_id, **dados }
-
+        dados = Hotel.atributos.parse_args()
+        hotel_objeto = HotelModel(hotel_id, **dados)
+        novo_hotel = hotel_objeto.json()
         hotel = Hotel.find_hotel(hotel_id)
+
         if hotel:
             hotel.update(novo_hotel)
-            return novo_hotel, 200 # ok
+            return hotel, 200 # ok
         hoteis.append(novo_hotel)
         return novo_hotel, 201    # created
 
