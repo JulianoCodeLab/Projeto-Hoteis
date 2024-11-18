@@ -1,4 +1,7 @@
 from flask_restful import Resource, reqparse
+from models.hotel   import HotelModel
+
+
 # Lista inicial de hotéis para servir como base de dados.
 hoteis = [
     {
@@ -25,22 +28,7 @@ hoteis = [
 ]
 
 # Classe que representa os hotéis
-class HotelModel:
-    def __init__(self, hotel_id, nome, estrelas, diaria, cidade):
-        self.hotel_id = hotel_id
-        self.nome = nome
-        self.estrelas = estrelas
-        self.diaria = diaria
-        self.cidade = cidade
 
-    def json(self):  # Correção: Adicionado "self" como parâmetro
-        return {
-            "hotel_id": self.hotel_id,  # Correção: Corrigido de "hortel_id" para "hotel_id"
-            "nome": self.nome,
-            "estrelas": self.estrelas,
-            "diaria": self.diaria,
-            "cidade": self.cidade
-        }
 
 #-----------------------------------------------------------------------------------------
 # Classe Hoteis para lidar com a coleção de hotéis.
@@ -62,14 +50,14 @@ class Hotel(Resource):
     argumentos.add_argument('diaria')
     argumentos.add_argument('cidade')
 
-    # Método auxiliar para encontrar um hotel pelo ID.
+    # Metodo auxiliar para encontrar um hotel pelo ID.
     def find_hotel(hotel_id):
         for hotel in hoteis:
             if hotel['hotel_id'] == hotel_id:
                 return hotel
         return None
 
-    # Método GET para retornar um hotel específico pelo ID. Se o hotel não for encontrado, retorna um erro 404.
+    # Metodo GET para retornar um hotel específico pelo ID. Se o hotel não for encontrado, retorna um erro 404.
     def get(self, hotel_id):
         hotel = Hotel.find_hotel(hotel_id)
         if hotel:
@@ -77,7 +65,7 @@ class Hotel(Resource):
 
         return {'message': 'Hotel not found.'}, 404  # not found
 
-    # Método POST para adicionar um novo hotel. Recebe os dados do hotel via JSON e adiciona à lista de hotéis.
+    # Metodo POST para adicionar um novo hotel. Recebe os dados do hotel via JSON e adiciona à lista de hotéis.
     def post(self, hotel_id):
         dados = Hotel.argumentos.parse_args()  # Correção: Usado "argumentos" em vez de "atributos"
         hotel_objeto = HotelModel(hotel_id, **dados)
@@ -85,7 +73,7 @@ class Hotel(Resource):
         hoteis.append(novo_hotel)
         return novo_hotel, 201
 
-    # Método PUT para atualizar um hotel existente, ou criar um se ele não existir.
+    # Metodo PUT para atualizar um hotel existente, ou criar um se ele não existir.
     def put(self, hotel_id):
         dados = Hotel.argumentos.parse_args()  # Correção: Usado "argumentos" em vez de "atributos"
         hotel_objeto = HotelModel(hotel_id, **dados)
@@ -98,7 +86,7 @@ class Hotel(Resource):
         hoteis.append(novo_hotel)
         return novo_hotel, 201  # created
 
-    # Método DELETE para remover um hotel pelo ID.
+    # Metodo DELETE para remover um hotel pelo ID.
     def delete(self, hotel_id):
         global hoteis
         hoteis = [hotel for hotel in hoteis if hotel['hotel_id'] != hotel_id]
