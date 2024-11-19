@@ -34,7 +34,7 @@ hoteis = [
 # Classe Hoteis para lidar com a coleção de hotéis.
 class Hoteis(Resource):
 
-    # Método GET para retornar todos os hotéis.
+    # Metodo GET para retornar todos os hotéis.
     def get(self):
         return {'hoteis': hoteis}
     
@@ -50,41 +50,35 @@ class Hotel(Resource):
     argumentos.add_argument('diaria')
     argumentos.add_argument('cidade')
 
-    # Metodo auxiliar para encontrar um hotel pelo ID.
-    def find_hotel(hotel_id):
-        for hotel in hoteis:
-            if hotel['hotel_id'] == hotel_id:
-                return hotel
-        return None
-
     # Metodo GET para retornar um hotel específico pelo ID. Se o hotel não for encontrado, retorna um erro 404.
     def get(self, hotel_id):
-        hotel = Hotel.find_hotel(hotel_id)
+        hotel = HotelModel.find_hotel(hotel_id)
         if hotel:
-            return hotel
-
+            return hotel.json() # retorna a resposta Json do hotel
         return {'message': 'Hotel not found.'}, 404  # not found
 
-    # Metodo POST para adicionar um novo hotel. Recebe os dados do hotel via JSON e adiciona à lista de hotéis.
+    # Metodo POST para adicionar um novo hotel.
     def post(self, hotel_id):
+        if HotelModel.find_hotel(hotel_id):
+            return {'message' : f'Hotel id "{hotel_id}" already exists.'.format(hotel_id)}, 400 #requisição errada
+
         dados = Hotel.argumentos.parse_args()  # Correção: Usado "argumentos" em vez de "atributos"
-        hotel_objeto = HotelModel(hotel_id, **dados)
-        novo_hotel = hotel_objeto.json()
-        hoteis.append(novo_hotel)
-        return novo_hotel, 201
+        hotel = HotelModel(hotel_id, **dados)
+        hotel.save_hotel()
+        return hotel.json(), 201 #retorna o hotel criado
 
     # Metodo PUT para atualizar um hotel existente, ou criar um se ele não existir.
     def put(self, hotel_id):
         dados = Hotel.argumentos.parse_args()  # Correção: Usado "argumentos" em vez de "atributos"
-        hotel_objeto = HotelModel(hotel_id, **dados)
-        novo_hotel = hotel_objeto.json()
-        hotel = Hotel.find_hotel(hotel_id)
+        novo_hotel = HotelModel(hotel_id, **dados)
+        hotel = HotelModel.find_hotel(hotel_id)
 
         if hotel:
-            hotel.update(novo_hotel)
+            hotel.update(novo_hotel.json())
             return hotel, 200  # ok
-        hoteis.append(novo_hotel)
-        return novo_hotel, 201  # created
+        else:
+            novo_hotel.save_hotel()
+            return novo_hotel, 201  # created
 
     # Metodo DELETE para remover um hotel pelo ID.
     def delete(self, hotel_id):
