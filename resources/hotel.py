@@ -41,13 +41,6 @@ class Hotel(Resource):
     argumentos.add_argument('diaria')
     argumentos.add_argument('cidade')
 
-    def find_hotel(hotel_id): #funcao que procura hotel
-        for hotel in hoteis:
-            if hotel['hotel_id'] == hotel_id:
-                return hotel
-        return None
-
-
     def get(self, hotel_id):
         hotel = Hotel.find_hotel(hotel_id)
         if hotel:
@@ -56,20 +49,22 @@ class Hotel(Resource):
 
 
     def post(self, hotel_id):
-        dados = Hotel.argumentos.parse_args()
-        hotel_objeto = HotelModel(hotel_id, **dados)        #chamando objeto do tipo hotel
 
-        novo_hotel = hotel_objeto.json()                    #transformando o novo objeto em json
-        hoteis.append(novo_hotel)
-        return novo_hotel, 200
+        if HotelModel.find_hotel(hotel_id):
+            return {"message": "Hotel id '{}' already exists.".format(hotel_id)}, 400 #bad request
+
+        dados = Hotel.argumentos.parse_args()
+        hotel = HotelModel(hotel_id, **dados)        #chamando objeto do tipo hotel
+        hotel.save_hotel()
+        return hotel.json()
+
 
 
     def put(self, hotel_id):
-        dados = Hotel.argumentos.parse_args()
 
+        dados = Hotel.argumentos.parse_args()
         hotel_objeto = HotelModel(hotel_id, **dados)  # chamando objeto do tipo hotel
         novo_hotel = hotel_objeto.json()  # transformando o novo objeto em json
-
         hotel = Hotel.find_hotel(hotel_id)
         if hotel:
             hotel.update(novo_hotel)    #funcao para atualizar os dados
