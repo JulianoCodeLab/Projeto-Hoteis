@@ -1,5 +1,6 @@
-from click import argument
 from flask_restful import Resource, reqparse
+from models.hotel import HotelModel
+
 
 hoteis = [
     {
@@ -24,6 +25,8 @@ hoteis = [
             'cidade': 'Santa Catarina'
     },
 ]
+
+
 #-----------------------
 class Hoteis(Resource):
     def get(self):
@@ -54,17 +57,18 @@ class Hotel(Resource):
 
     def post(self, hotel_id):
         dados = Hotel.argumentos.parse_args()
+        hotel_objeto = HotelModel(hotel_id, **dados)        #chamando objeto do tipo hotel
 
-        novo_hotel = {'hotel_id': hotel_id, **dados}
-
+        novo_hotel = hotel_objeto.json()                    #transformando o novo objeto em json
         hoteis.append(novo_hotel)
         return novo_hotel, 200
 
 
     def put(self, hotel_id):
-
         dados = Hotel.argumentos.parse_args()
-        novo_hotel = {'hotel_id': hotel_id, **dados}
+
+        hotel_objeto = HotelModel(hotel_id, **dados)  # chamando objeto do tipo hotel
+        novo_hotel = hotel_objeto.json()  # transformando o novo objeto em json
 
         hotel = Hotel.find_hotel(hotel_id)
         if hotel:
