@@ -6,7 +6,7 @@ from models.usuario import UserModel
 
 class User(Resource):
 
-#------------- /usuarios/{user_i}
+#------------- /usuarios/{user_id}
     def get(self, user_id):
         user = UserModel.find_user(user_id)
         if user:
@@ -16,7 +16,7 @@ class User(Resource):
     def delete(self, user_id):
         user = UserModel.find_user(user_id)
         if user:
-            user.delete_hotel()
+            user.delete_user()
             return {'message': 'user deleted.'}
         return {'message': 'user not found.'}, 404
 
