@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from models.usuario import UserModel
 
 # Parser de argumentos para login e senha
@@ -16,6 +16,7 @@ class User(Resource):
             return user.json()
         return {'message': 'User not found.'}, 404  # Not Found
 
+    @jwt_required()  # Atualização: Adicionado parênteses
     def delete(self, user_id):
         user = UserModel.find_user(user_id)
         if user:

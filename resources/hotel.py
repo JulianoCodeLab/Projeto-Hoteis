@@ -1,67 +1,62 @@
 from flask_restful import Resource, reqparse
-from sqlalchemy.sql.operators import truediv
-
+from flask_jwt_extended import jwt_required
 from models.hotel import HotelModel
 
 class Hoteis(Resource):
     def get(self):
-        return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}       #SELECT * FROM hoteis
+        return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}  # SELECT * FROM hoteis
 
-#------------------------
+
 class Hotel(Resource):
-
     argumentos = reqparse.RequestParser()
-    argumentos.add_argument('nome', type=str, required=True, help= "the field 'nome' connot be left blank")
-    argumentos.add_argument('estrelas', type=float, required=True, help="The field 'Estrelas' cannot be left blank")
-    argumentos.add_argument('diaria')
-    argumentos.add_argument('cidade')
+    argumentos.add_argument('nome', type=str, required=True, help="The field 'nome' cannot be left blank")
+    argumentos.add_argument('estrelas', type=float, required=True, help="The field 'estrelas' cannot be left blank")
+    argumentos.add_argument('diaria', type=float, required=False)
+    argumentos.add_argument('cidade', type=str, required=False)
 
     def get(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)
         if hotel:
             return hotel.json()
-        return {'message': 'Hotel not found.'},404 #not found
+        return {'message': 'Hotel not found.'}, 404  # Not Found
 
-
+    @jwt_required()  # Atualizado: Adicionado parênteses
     def post(self, hotel_id):
-
         if HotelModel.find_hotel(hotel_id):
-            return {"message": "Hotel id '{}' already exists.".format(hotel_id)}, 400 #bad request
+            return {"message": f"Hotel id '{hotel_id}' already exists."}, 400  # Bad Request
 
         dados = Hotel.argumentos.parse_args()
-        hotel = HotelModel(hotel_id, **dados)        #chamando objeto do tipo hotel
-        try:                                         #tente salvar
+        print(dados)    #verificando se os dados estão processados corretamente
+        hotel = HotelModel(hotel_id, **dados)  # Criando objeto do tipo Hotel
+        try:
             hotel.save_hotel()
         except:
-            return{'message': 'An internal error ocurred trying to save'}, 500      #internal server error
-        return hotel.json()
+            return {'message': 'An internal error occurred while trying to save.'}, 500  # Internal Server Error
+        return hotel.json(), 201  # Created
 
-
-
+    @jwt_required()  # Atualizado: Adicionado parênteses
     def put(self, hotel_id):
-
         dados = Hotel.argumentos.parse_args()
         hotel_encontrado = HotelModel.find_hotel(hotel_id)
 
         if hotel_encontrado:
-            hotel_encontrado.update_hotel(**dados)      #funcao para atualizar os dados
+            hotel_encontrado.update_hotel(**dados)  # Atualizando os dados
             hotel_encontrado.save_hotel()
-            return hotel_encontrado.json(), 200      #200 -> ok
-        hotel = HotelModel(hotel_id, **dados)           #Se o hotel não foi encontrado, cria o hotel
-        try:                                         #tente salvar
+            return hotel_encontrado.json(), 200  # OK
+        hotel = HotelModel(hotel_id, **dados)  # Caso o hotel não seja encontrado, cria o hotel
+        try:
             hotel.save_hotel()
         except:
-            return{'message': 'An internal error ocurred trying to save'}, 500      #internal server error
-        return hotel.json(), 201          #created -> criado
+            return {'message': 'An internal error occurred while trying to save.'}, 500  # Internal Server Error
+        return hotel.json(), 201  # Created
 
-
-
+    @jwt_required()  # Atualizado: Adicionado parênteses
     def delete(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)
         if hotel:
             try:
                 hotel.delete_hotel()
             except:
-                return {'message': 'An error ocurre to delete hotel'}, 500          #internal server error
+                return {'message': 'An error occurred while trying to delete the hotel.'}, 500  # Internal Server Error
             return {'message': 'Hotel deleted.'}
-        return {'message': 'Hotel not found.'}, 404
+        return {'message': 'Hotel not found.'}, 404  # Not Found
