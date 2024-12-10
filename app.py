@@ -4,6 +4,7 @@ from resources.hotel import Hoteis, Hotel
 from resources.usuario import User, UserRegister, UserLogin
 from flask_jwt_extended import JWTManager       #RESPONSAVEL PELA PARTE DE AUTENTICAÇÃO
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///banco.db'    #pode mudar para qualquer banco, ex postgre atc
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
